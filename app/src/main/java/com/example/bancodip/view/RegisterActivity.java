@@ -10,8 +10,6 @@ import com.example.bancodip.R;
 import com.example.bancodip.controller.ControllerBancoDados;
 import com.example.bancodip.databinding.ActivityRegisterBinding;
 
-import java.util.Locale;
-
 public class RegisterActivity extends AppCompatActivity {
 
     private ActivityRegisterBinding binding;
@@ -29,46 +27,38 @@ public class RegisterActivity extends AppCompatActivity {
         binding.btnCriarConta.setOnClickListener(v -> {
             controllerBancoDados.open();
 
-            String  nome = binding.NomeRegister.getText().toString().trim();
+            String nome = binding.NomeRegister.getText().toString().trim();
             String CPF = binding.CPFRegister.getText().toString().trim();
             String Senha = binding.SenhaRegister.getText().toString().trim();
             String SaldoTxT = binding.SaldoRegister.getText().toString().trim();
 
-            if(!nome.isEmpty() && !CPF.isEmpty() && !SaldoTxT.isEmpty() && !Senha.isEmpty()){
+            if (!nome.isEmpty() && !CPF.isEmpty() && !SaldoTxT.isEmpty() && !Senha.isEmpty()) {
+                if (controllerBancoDados.isCPFInDatabase(CPF)) {
+                    Toast.makeText(getApplicationContext(), "CPF já registrado!", Toast.LENGTH_LONG).show();
+                } else {
+                    double Saldo = Double.parseDouble(SaldoTxT);
+                    double ChequeEspecial = Saldo * 4;
+                    double ChequeInicial = ChequeEspecial;
 
-                double Saldo = Double.parseDouble(SaldoTxT);
-                double ChequeEspecial = Saldo * 4;
-                double ChequeInicial = ChequeEspecial;
-
-                try {
-                    controllerBancoDados.insertData(nome, CPF, Senha, Saldo, ChequeEspecial, ChequeInicial);
-                    intent.putExtra("nome", nome);
-                    intent.putExtra("CPF", CPF);
-                    intent.putExtra("Senha", Senha);
-                    intent.putExtra("Saldo", Saldo);
-                    intent.putExtra("ChequeEspecial", ChequeEspecial);
-                    intent.putExtra("ChequeI", ChequeInicial);
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                } finally {
-                    controllerBancoDados.close();
-                    startActivity(intent);
-                    finish();
+                    try {
+                        controllerBancoDados.insertData(nome, CPF, Senha, Saldo, ChequeEspecial, ChequeInicial);
+                        intent.putExtra("nome", nome);
+                        intent.putExtra("CPF", CPF);
+                        intent.putExtra("Senha", Senha);
+                        intent.putExtra("Saldo", Saldo);
+                        intent.putExtra("ChequeEspecial", ChequeEspecial);
+                        intent.putExtra("ChequeI", ChequeInicial);
+                        startActivity(intent);
+                        finish();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        controllerBancoDados.close();
+                    }
                 }
-
             } else {
                 Toast.makeText(getApplicationContext(), "Erro", Toast.LENGTH_LONG).show();
             }
-
-
-
-
-
         });
-
-
-
-
     }
 }

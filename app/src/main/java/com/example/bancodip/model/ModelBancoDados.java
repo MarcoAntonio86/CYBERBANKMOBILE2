@@ -46,4 +46,5 @@ public class ModelBancoDados extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + NOME_TABELA);
         onCreate(sqLiteDatabase);
     }
+
 }

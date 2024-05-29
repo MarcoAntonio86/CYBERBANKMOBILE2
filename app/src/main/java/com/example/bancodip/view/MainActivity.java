@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.bancodip.R;
@@ -21,6 +22,12 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_TRANSFERIR = 123;
 
+    private TextView meuTextView;
+    private ModelBancoDados databaseHelper;
+
+
+
+    @SuppressLint("SetTextI18n")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -32,10 +39,12 @@ public class MainActivity extends AppCompatActivity {
         Intent intentTrans = new Intent(MainActivity.this, TransferirActivity.class);
         Intent intent = getIntent();
 
-        String nome = intent.getStringExtra("nome");
         String CPF = intent.getStringExtra("CPF");
+        double saldoIntent = intent.getDoubleExtra("Saldo", 0.0);
 
         intentTrans.putExtra("CPFTransfer", CPF);
+
+
 
         try {
             controllerBancoDados.open();
@@ -45,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
             String saldoString = String.valueOf(saldoBanco);
             String chequeString = String.valueOf(chequeBanco);
 
-            binding.saldoConta.setText("R$ " + saldoString);
+            binding.saldoConta.setText("R$ " + String.valueOf(saldoIntent));
             binding.chequeEspecialConta.setText(chequeString);
 
         } catch (Exception e){
@@ -59,17 +68,17 @@ public class MainActivity extends AppCompatActivity {
         binding.btnDepositar.setOnClickListener(v -> {
             controllerBancoDados.open();
 
-            String valorCliente = binding.hintUserValor.getText().toString();
+            String valor = binding.hintUserValor.getText().toString();
 
-            if(!valorCliente.isEmpty()){
+            if(!valor.isEmpty()){
                 try {
 
                     Double cheque = controllerBancoDados.getChequeByTitular(CPF);
                     Double valorSaldo = controllerBancoDados.getSaldoByTitular(CPF);
                     Double CHEQUEESPECIAL = controllerBancoDados.getChequeDEFIByTitular(CPF);
 
-                    Double novoSaldo = Double.parseDouble(valorCliente) + valorSaldo ;
-                    Double novoCheque = cheque + Double.parseDouble(valorCliente);
+                    Double novoSaldo = Double.parseDouble(valor) + valorSaldo ;
+                    Double novoCheque = cheque + Double.parseDouble(valor);
 
                     controllerBancoDados.updateSaldo(CPF, novoSaldo);
                     binding.saldoConta.setText(String.valueOf(novoSaldo));
@@ -176,13 +185,14 @@ public class MainActivity extends AppCompatActivity {
         controllerBancoDados.open();
         Intent intent = getIntent();
 
-        String email = intent.getStringExtra("email");
-        Double saldo = controllerBancoDados.getSaldoByTitular(email);
-        Double cheque = controllerBancoDados.getChequeByTitular(email);
+        String CPF = intent.getStringExtra("CPF");
+        Double saldo = controllerBancoDados.getSaldoByTitular(CPF);
+        Double cheque = controllerBancoDados.getChequeByTitular(CPF);
 
         binding.saldoConta.setText("R$ " + String.valueOf(saldo));
         binding.chequeEspecialConta.setText("R$ " + String.valueOf(cheque));
     }
+
 
 
 
